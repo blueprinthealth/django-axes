@@ -185,11 +185,15 @@ def is_user_lockable(request):
     and doesn't get their account locked out
     """
     try:
-        field = getattr(User, 'USERNAME_FIELD', 'username')
-        kwargs = {
-            field: request.POST.get(USERNAME_FORM_FIELD)
-        }
-        user = User.objects.get(**kwargs)
+        lockout_email = getattr(request, 'lockout_email', None)
+        if lockout_email:
+            user = User.objects.get(email=lockout_email)
+        else:
+            field = getattr(User, 'USERNAME_FIELD', 'username')
+            kwargs = {
+                field: request.POST.get(USERNAME_FORM_FIELD)
+            }
+            user = User.objects.get(**kwargs)
     except User.DoesNotExist:
         # not a valid user
         return True
@@ -219,7 +223,9 @@ def _get_user_attempts(request):
     """
     ip = get_ip(request)
 
-    username = request.POST.get(USERNAME_FORM_FIELD, None)
+    username = getattr(request, 'lockout_email', None)
+    if not username:
+        username = request.POST.get(USERNAME_FORM_FIELD, None)
 
     if USE_USER_AGENT:
         ua = request.META.get('HTTP_USER_AGENT', '<unknown>')[:255]
@@ -313,10 +319,13 @@ def watch_login(func):
                 response.status_code != 302
             )
 
+            username = getattr(response, 'lockout_email', None)
+            if not username:
+                username = request.POST.get(USERNAME_FORM_FIELD, None)
             access_log = AccessLog.objects.create(
                 user_agent=request.META.get('HTTP_USER_AGENT', '<unknown>')[:255],
                 ip_address=get_ip(request),
-                username=request.POST.get(USERNAME_FORM_FIELD, None),
+                username=username,
                 http_accept=request.META.get('HTTP_ACCEPT', '<unknown>'),
                 path_info=request.META.get('PATH_INFO', '<unknown>'),
                 trusted=not login_unsuccessful,
@@ -373,7 +382,9 @@ def is_already_locked(request):
 
 def check_request(request, login_unsuccessful):
     ip_address = get_ip(request)
-    username = request.POST.get(USERNAME_FORM_FIELD, None)
+    username = getattr(request, 'lockout_email', None)
+    if not username:
+        username = request.POST.get(USERNAME_FORM_FIELD, None)
     failures = 0
     attempts = get_user_attempts(request)
 
@@ -447,7 +458,9 @@ def check_request(request, login_unsuccessful):
 def create_new_failure_records(request, failures):
     ip = get_ip(request)
     ua = request.META.get('HTTP_USER_AGENT', '<unknown>')[:255]
-    username = request.POST.get(USERNAME_FORM_FIELD, None)
+    username = getattr(request, 'lockout_email', None)
+    if not username:
+        username = request.POST.get(USERNAME_FORM_FIELD, None)
 
     params = {
         'user_agent': ua,
@@ -476,7 +489,9 @@ def create_new_failure_records(request, failures):
 def create_new_trusted_record(request):
     ip = get_ip(request)
     ua = request.META.get('HTTP_USER_AGENT', '<unknown>')[:255]
-    username = request.POST.get(USERNAME_FORM_FIELD, None)
+    username = getattr(request, 'lockout_email', None)
+    if not username:
+        username = request.POST.get(USERNAME_FORM_FIELD, None)
 
     if not username:
         return False
