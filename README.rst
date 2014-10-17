@@ -1,9 +1,9 @@
 Django Axes
 ===========
 
-.. image:: https://secure.travis-ci.org/django-security/django-axes.png?branch=master
+.. image:: https://secure.travis-ci.org/django-pci/django-axes.png?branch=master
     :alt: Build Status
-    :target: http://travis-ci.org/django-security/django-axes
+    :target: http://travis-ci.org/django-pci/django-axes
 
 ``django-axes`` is a very simple way for you to keep track of failed login
 attempts, both for the Django admin and for the rest of your site.  The name is
@@ -29,7 +29,7 @@ Installation
 
 Download and install ``django-axes`` using **one** of the following methods:
 
-PIP
+pip
 ---
 
 You can install the latest stable package running this command::
@@ -38,7 +38,7 @@ You can install the latest stable package running this command::
 
 Also you can install the development version running this command::
 
-    $ pip install -e git+http://github.com/django-security/django-axes.git#egg=django_axes-dev
+    $ pip install -e git+http://github.com/django-pci/django-axes.git#egg=django_axes-dev
 
 Setuptools
 ----------
@@ -142,3 +142,18 @@ In your code, you can use ``from axes.utils import reset``.
 * ``reset()`` will reset all lockouts and access records.
 * ``reset(ip=ip)`` will clear lockout/records for ip
 * ``reset(username=username)`` will clear lockout/records for username
+
+Issues
+======
+
+You may find that Axes is not capturing my failed login attempt. It may be that you need to manually add watch_login to your login url. 
+For example, in your urls.py::
+
+    ...
+    from django.contrib.auth.views import login, logout, password_change
+    from axes.decorators import watch_login
+    ...
+    urlpatterns = patterns('',
+        (r'^login/$', watch_login(login), {'template_name': 'auth/login.html'}),
+    ...
+

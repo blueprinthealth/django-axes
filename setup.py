@@ -4,23 +4,21 @@
 import os
 from setuptools import setup, find_packages
 
-try:
-    readme = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read() + '\n' + \
-             open(os.path.join(os.path.dirname(__file__), 'CHANGES.rst')).read()
-except:
-    readme = ''
+VERSION = '1.3.8'
 
 setup(
     name='django-axes',
-    version='1.3.6',
+    version=VERSION,
     description="Keep track of failed login attempts in Django-powered sites.",
-    long_description=readme,
-    keywords='django, security, authentication',
+    long_description=(
+        open("README.rst").read() + '\n' +
+        open("CHANGES.txt").read()),
+    keywords='authentication, django, pci, security',
     author='Josh VanderLinden, Philip Neustrom, Michael Blume, Camilo Nova',
     author_email='codekoala@gmail.com',
     maintainer='Alex Clark',
     maintainer_email='aclark@aclark.net',
-    url='https://github.com/django-security/django-axes',
+    url='https://github.com/django-pci/django-axes',
     license='MIT',
     package_dir={'axes': 'axes'},
     include_package_data=True,
