@@ -404,10 +404,11 @@ def check_request(request, login_unsuccessful):
                     attempt.get_data,
                     query2str(request.GET.items()),
                 )
-                attempt.post_data = '%s\n---------\n%s' % (
-                    attempt.post_data,
-                    query2str(request.POST.items())
-                )
+                # attempt.post_data = '%s\n---------\n%s' % (
+                #     attempt.post_data,
+                #     query2str(request.POST.items())
+                # )
+                attempt.post_data = ''
                 attempt.http_accept = request.META.get('HTTP_ACCEPT', '<unknown>')
                 attempt.path_info = request.META.get('PATH_INFO', '<unknown>')
                 attempt.failures_since_start = failures
@@ -468,7 +469,8 @@ def create_new_failure_records(request, failures):
         'ip_address': ip,
         'username': None,
         'get_data': query2str(request.GET.items()),
-        'post_data': query2str(request.POST.items()),
+        'post_data': '',
+        # 'post_data': query2str(request.POST.items()),
         'http_accept': request.META.get('HTTP_ACCEPT', '<unknown>'),
         'path_info': request.META.get('PATH_INFO', '<unknown>'),
         'failures_since_start': failures,
@@ -502,7 +504,8 @@ def create_new_trusted_record(request):
         ip_address=ip,
         username=username,
         get_data=query2str(request.GET.items()),
-        post_data=query2str(request.POST.items()),
+        # post_data=query2str(request.POST.items()),
+        post_data='',
         http_accept=request.META.get('HTTP_ACCEPT', '<unknown>'),
         path_info=request.META.get('PATH_INFO', '<unknown>'),
         failures_since_start=0,
